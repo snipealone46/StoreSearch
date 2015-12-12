@@ -225,6 +225,12 @@ extension SearchViewController: UISearchBarDelegate {
                 if let dictionary = parseJSON(jsonString) {
 //                    print("Dictionary \(dictionary)")
                     searchResults = parseDictionary(dictionary)
+                    //sort() will return a new array
+                    //sortInPlace() will replace the current array
+                    //use $0 and $1 to replace result1 and result2
+                    //overload < function delcared in SearchResult.swift
+                    searchResults.sortInPlace(<)
+                    
                     tableView.reloadData()
                     return
                 }
