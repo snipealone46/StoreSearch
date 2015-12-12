@@ -57,19 +57,9 @@ class SearchViewController: UIViewController {
         let url = NSURL(string: urlString)
         return url!
     }
-    //format the result
-    func performStoreRequestWithURL(url: NSURL) -> String? {
-        do {
-            return try String(contentsOfURL: url, encoding: NSUTF8StringEncoding)
-        } catch {
-            print("Download Error: \(error)")
-            return nil
-        }
-    }
+
     //parse the JSON
-    func parseJSON(jsonString: String) -> [String: AnyObject]? {
-        guard let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding)
-            else { return nil}
+    func parseJSON(data: NSData) -> [String: AnyObject]? {
         do {
             //NSJSONSerialization convert the JSON search results to a Dictionary.
             return try NSJSONSerialization.JSONObjectWithData(data, options: []) as? [String: AnyObject]
@@ -225,31 +215,41 @@ extension SearchViewController: UISearchBarDelegate {
             
             isLoading = true
             tableView.reloadData()
-            
-            //put networking into background
-            let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
-            dispatch_async(queue) {
-                let url = self.urlWithSearchText(searchBar.text!)
-                //            print("URL: '\(url)'")
-                if let jsonString = self.performStoreRequestWithURL(url),
-                    let dictionary = self.parseJSON(jsonString) {
-                        //                    print("Dictionary \(dictionary)")
+            //create NSURL object
+            let url = urlWithSearchText(searchBar.text!)
+            //obtain the NSURLSession object.
+            let session = NSURLSession.sharedSession()
+            //create data task. the code from the completikon handler will be invoked when the data task has received the reply from the server
+            let dataTask = session.dataTaskWithURL(url, completionHandler: {
+                //data, response and error are all optionals
+                data, response, error in
+                if let error = error {
+                    print("Failure! \(error)")
+                } else if let httpResponse = response as? NSHTTPURLResponse where httpResponse.statusCode == 200 {
+                    if let data = data, dictionary = self.parseJSON(data) {
                         self.searchResults = self.parseDictionary(dictionary)
-                        //sort() will return a new array
-                        //sortInPlace() will replace the current array
-                        //use $0 and $1 to replace result1 and result2
-                        //overload < function delcared in SearchResult.swift
                         self.searchResults.sortInPlace(<)
+                        
                         dispatch_async(dispatch_get_main_queue()) {
                             self.isLoading = false
                             self.tableView.reloadData()
                         }
                         return
                     }
-                dispatch_async(dispatch_get_main_queue()) {
-                    self.showNetworkError()
+                    dispatch_async(dispatch_get_main_queue()) {
+                        self.hasSearched = false
+                        self.isLoading = false
+                        self.tableView.reloadData()
+                        self.showNetworkError()
+                    }
                 }
-            }
+                else {
+                    print("Failure! \(response!)")
+                }
+                
+            })
+            //send the created dataTask to the server
+            dataTask.resume()
 
         }
     }
