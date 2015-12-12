@@ -17,6 +17,7 @@ class SearchViewController: UIViewController {
     //fix the ("No result") shows even the user hasn't searched anything
     var hasSearched = false
     var isLoading = false
+    var dataTask: NSURLSessionDataTask?
     struct TableViewCellIdentifiers {
         //static value can be used without an instance so you dont need to instatiate TableViewCellIndentifiers before you can use it.
         static let searchResultCell = "SearchResultCell"
@@ -209,6 +210,7 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         if !searchBar.text!.isEmpty {
+            dataTask?.cancel()
             hasSearched = true
             searchBar.resignFirstResponder()
             searchResults = [SearchResult]()
@@ -220,11 +222,11 @@ extension SearchViewController: UISearchBarDelegate {
             //obtain the NSURLSession object.
             let session = NSURLSession.sharedSession()
             //create data task. the code from the completikon handler will be invoked when the data task has received the reply from the server
-            let dataTask = session.dataTaskWithURL(url, completionHandler: {
+            dataTask = session.dataTaskWithURL(url, completionHandler: {
                 //data, response and error are all optionals
                 data, response, error in
-                if let error = error {
-                    print("Failure! \(error)")
+                if let error = error where error.code == -999 {
+                    return
                 } else if let httpResponse = response as? NSHTTPURLResponse where httpResponse.statusCode == 200 {
                     if let data = data, dictionary = self.parseJSON(data) {
                         self.searchResults = self.parseDictionary(dictionary)
@@ -249,7 +251,7 @@ extension SearchViewController: UISearchBarDelegate {
                 
             })
             //send the created dataTask to the server
-            dataTask.resume()
+            dataTask?.resume()
 
         }
     }
