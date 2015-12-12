@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Search View Controller-->
@@ -32,20 +33,45 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="0wi-Es-9jV"/>
                                 </connections>
                             </searchBar>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QGh-gS-1At">
+                                <rect key="frame" x="0.0" y="64" width="600" height="44"/>
+                                <items>
+                                    <navigationItem id="D7Y-2F-CJl">
+                                        <nil key="title"/>
+                                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="smC-jX-1TS">
+                                            <rect key="frame" x="150" y="7" width="300" height="30"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <segments>
+                                                <segment title="All"/>
+                                                <segment title="Music"/>
+                                                <segment title="Software"/>
+                                                <segment title="E-books"/>
+                                            </segments>
+                                            <connections>
+                                                <action selector="segmentedChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="p2f-Iu-5Ox"/>
+                                            </connections>
+                                        </segmentedControl>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="x91-1Z-kZl" secondAttribute="bottom" id="0m9-xI-9R0"/>
                             <constraint firstAttribute="trailing" secondItem="em8-0T-Gh2" secondAttribute="trailing" id="8ut-Yq-Iqi"/>
                             <constraint firstItem="em8-0T-Gh2" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="E1w-UD-Tkg"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="QGh-gS-1At" secondAttribute="trailing" constant="-20" id="GZg-ut-OVp"/>
+                            <constraint firstItem="QGh-gS-1At" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="Tst-oD-hFg"/>
                             <constraint firstAttribute="trailing" secondItem="x91-1Z-kZl" secondAttribute="trailing" id="f3S-K9-Q57"/>
                             <constraint firstItem="x91-1Z-kZl" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="gyF-bo-jwi"/>
                             <constraint firstItem="em8-0T-Gh2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="lAn-Yu-uMq"/>
                             <constraint firstItem="x91-1Z-kZl" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="qVV-B5-845"/>
+                            <constraint firstItem="QGh-gS-1At" firstAttribute="top" secondItem="em8-0T-Gh2" secondAttribute="bottom" id="xsX-g1-fnX"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="searchBar" destination="em8-0T-Gh2" id="t1V-qt-yCL"/>
+                        <outlet property="segmentedControl" destination="smC-jX-1TS" id="A2t-rg-GLq"/>
                         <outlet property="tableView" destination="x91-1Z-kZl" id="vCd-X1-ujx"/>
                     </connections>
                 </viewController>

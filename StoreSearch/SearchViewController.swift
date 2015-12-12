@@ -12,6 +12,7 @@ class SearchViewController: UIViewController {
 // MARK: - variables, outlets
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
     @IBOutlet weak var searchBar2: UISearchBar!
     var searchResults = [SearchResult]()
     //fix the ("No result") shows even the user hasn't searched anything
@@ -24,6 +25,9 @@ class SearchViewController: UIViewController {
         static let nothingFoundCell = "NothingFoundCell"
         static let loadingCell = "LoadingCell"
     }
+    @IBAction func segmentedChanged(sender: UISegmentedControl) {
+        performSearch()
+    }
     
     
 // MARK: - app built in methods
@@ -32,7 +36,7 @@ class SearchViewController: UIViewController {
         tableView.rowHeight = 80
         //tell the tableView to have a top margin for the status bar and search bar
         //20 points for the status bar, 44 points for the search bar
-        tableView.contentInset = UIEdgeInsets(top: 64, left: 0, bottom: 0, right: 0)
+        tableView.contentInset = UIEdgeInsets(top: 108, left: 0, bottom: 0, right: 0)
         //use the table cell nib
         var cellNib = UINib(nibName: TableViewCellIdentifiers.searchResultCell, bundle: nil)
         tableView.registerNib(cellNib, forCellReuseIdentifier: TableViewCellIdentifiers.searchResultCell)
@@ -48,13 +52,23 @@ class SearchViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+// MARK: - Do the search
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        performSearch()
+    }
 
 // MARK: - Networking
-    func urlWithSearchText(searchText: String) -> NSURL {
+    func urlWithSearchText(searchText: String, category: Int) -> NSURL {
         //format the search text to valid URL form
+        let entityName: String
+        switch category {
+        case 1: entityName = "musicTrack"
+        case 2: entityName = "software"
+        case 3: entityName = "ebook"
+        default: entityName = ""
+        }
         let escapedSearchText = searchText.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!
-        let urlString = String(format: "https://itunes.apple.com/search?term=%@&limit=200", escapedSearchText)
+        let urlString = String(format: "https://itunes.apple.com/search?term=%@&limit=200&entity=%@", escapedSearchText, entityName)
         let url = NSURL(string: urlString)
         return url!
     }
@@ -208,7 +222,7 @@ class SearchViewController: UIViewController {
 }
 // MARK: - extensions
 extension SearchViewController: UISearchBarDelegate {
-    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+    func performSearch() {
         if !searchBar.text!.isEmpty {
             dataTask?.cancel()
             hasSearched = true
@@ -218,7 +232,7 @@ extension SearchViewController: UISearchBarDelegate {
             isLoading = true
             tableView.reloadData()
             //create NSURL object
-            let url = urlWithSearchText(searchBar.text!)
+            let url = urlWithSearchText(searchBar.text!, category: segmentedControl.selectedSegmentIndex)
             //obtain the NSURLSession object.
             let session = NSURLSession.sharedSession()
             //create data task. the code from the completikon handler will be invoked when the data task has received the reply from the server
