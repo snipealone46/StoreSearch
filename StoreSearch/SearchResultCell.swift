@@ -13,6 +13,7 @@ class SearchResultCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var artistNameLabel: UILabel!
     @IBOutlet weak var artworkImageView: UIImageView!
+    var downloadTask: NSURLSessionDownloadTask?
     
 // MARK: - app action methods
     //awakeFromNib method is called after this cell object has been loaded from the nib
@@ -33,5 +34,47 @@ class SearchResultCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
+// MARK: - cell support methods
+    func configureForSearchResult(searchResult: SearchResult) {
+        nameLabel.text = searchResult.name
+        
+        if searchResult.artistName.isEmpty {
+            artistNameLabel.text = "Unknown"
+        } else {
+            artistNameLabel.text = String(format: "%@ (%@)", searchResult.artistName, kindForDisplay(searchResult.kind))
+        }
+        artworkImageView.image = UIImage(named: "Placeholder")
+        if let url = NSURL(string: searchResult.artworkURL60) {
+            downloadTask = artworkImageView.loadImageWithURL(url)
+        }
+    }
+    
+    func kindForDisplay(kind: String) -> String {
+        switch kind {
+        case "album": return "Album"
+        case "audiobook": return "Audio Book"
+        case "book": return "Book"
+        case "ebook": return "E-book"
+        case "feature-movie": return "Movie"
+        case "music-video": return "Music Video"
+        case "podcast": return "Podcast"
+        case "software": return "App"
+        case "song": return "App"
+        case "tv-episode": return "TV Episode"
+        default: return kind
+        }
+    }
+    //cancel the pending download if user already scroll pass the cell
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        downloadTask?.cancel()
+        downloadTask = nil
+        nameLabel.text = nil
+        artistNameLabel.text = nil
+        artworkImageView.image = nil
+        
+    }
+    
 
 }
