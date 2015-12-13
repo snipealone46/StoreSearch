@@ -56,6 +56,15 @@ class SearchViewController: UIViewController {
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         performSearch()
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "ShowDetail" {
+            let detailViewController = segue.destinationViewController as! DetailViewController
+            let indexPath = sender as! NSIndexPath
+            let searchResult = searchResults[indexPath.row]
+            detailViewController.searchResult = searchResult
+        }
+    }
 
 // MARK: - Networking
     func urlWithSearchText(searchText: String, category: Int) -> NSURL {
@@ -298,8 +307,9 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
     //deselect the row with an animation
-    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        performSegueWithIdentifier("ShowDetail", sender: indexPath)
     }
     //make sure only search results are selectable
     func tableView(tableView: UITableView, willSelectRowAtIndexPath indexPath: NSIndexPath) -> NSIndexPath? {
