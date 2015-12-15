@@ -16,6 +16,7 @@ class SearchViewController: UIViewController {
     @IBOutlet weak var searchBar2: UISearchBar!
     var searchResults = [SearchResult]()
     //fix the ("No result") shows even the user hasn't searched anything
+    var observer: AnyObject!
     var hasSearched = false
     var isLoading = false
     var dataTask: NSURLSessionDataTask?
@@ -33,6 +34,7 @@ class SearchViewController: UIViewController {
 // MARK: - app built in methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        listenTextSizeSettings()
         tableView.rowHeight = 80
         //tell the tableView to have a top margin for the status bar and search bar
         //20 points for the status bar, 44 points for the search bar
@@ -212,6 +214,19 @@ class SearchViewController: UIViewController {
         alert.addAction(action)
         
         presentViewController(alert, animated: true, completion: nil)
+    }
+// MARK: - support methods
+    func listenTextSizeSettings() {
+        observer = NSNotificationCenter.defaultCenter().addObserverForName(UIContentSizeCategoryDidChangeNotification, object: nil, queue: NSOperationQueue.mainQueue(), usingBlock: {
+            [weak self] _ in
+            if let strongSelf = self {
+            strongSelf.tableView.reloadData()
+            }
+            })
+    }
+    
+    deinit{
+        NSNotificationCenter.defaultCenter().removeObserver(observer)
     }
 
 }
